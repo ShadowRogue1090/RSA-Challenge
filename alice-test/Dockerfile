@@ -4,12 +4,10 @@ RUN apt-get update && \
     apt-get install -y \
         openssh-server \
         netcat-openbsd \
-        vim-tiny \
-        less \
-        procps \
         iproute2 \
         findutils \
-        && \
+        bat \
+        nano \
     rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -s /bin/bash alice && \
@@ -17,7 +15,7 @@ RUN useradd -m -s /bin/bash alice && \
 
 RUN mkdir /var/run/sshd
 
-COPY challenge/ /home/alice/challenge/
+COPY challenge/ /home/alice/
 
 RUN chown -R alice:alice /home/alice/challenge
 

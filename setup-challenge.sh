@@ -15,11 +15,8 @@ docker build -t hacker ./$HACKER_CONTAINER
 
 ## Create Containers
 
-# docker run -d \
-#     --name challenge4-ssh \
-#     --network ch4-internal \
-#     --network-alias jumper \
-#     --dns 127.0.0.11 \
-#     --dns-search "." \
-#     -p 2223:2223 \
-#     challenge4-ssh
+docker run -d \
+  --name "$USER_CONTAINER" \
+  --network "$NETWORK" \
+  -p 2222:22 \
+  user
