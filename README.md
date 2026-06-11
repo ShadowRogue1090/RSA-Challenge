@@ -42,6 +42,10 @@ SSH into Alice through port 2222
 SSH into Hackerbot9001 through port 2224
 Netcat into Bob through port 8888
 
+There are two networks in place, one between Alice and Hackerbot, and one between Bob and Hackerbot.
+Hackerbot is acting as a proxy and all traffic passes through Hackerbot.
+Hackerbot also converts all the traffic into a .pcap file that Termshark can view.
+
 ## WHOAMI?
 
 ### Alice
