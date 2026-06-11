@@ -14,6 +14,9 @@ docker rmi hacker
 
 ## Destroy Containers
 
+docker kill "$USER_CONTAINER"
+docker kill "$FLAG_CONTAINER"
+docker kill "$HACKER_CONTAINER"
 docker rm "$USER_CONTAINER"
 docker rm "$FLAG_CONTAINER"
 docker rm "$HACKER_CONTAINER"
