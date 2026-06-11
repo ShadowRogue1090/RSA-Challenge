@@ -10,7 +10,7 @@ docker build -t flag ./$FLAG_CONTAINER
 docker build -t hacker ./$HACKER_CONTAINER
 
 
-## User (Alice)
+## Alice
 docker run -d \
   --name "$USER_CONTAINER" \
   --network "$NETWORK" \
@@ -18,14 +18,14 @@ docker run -d \
   user
 
 
-## Real Bob (hidden service)
+## Bob
 docker run -d \
   --name "$FLAG_CONTAINER" \
   --network "$NETWORK" \
   flag
 
 
-## Hackerbot (MITM gateway)
+## Hackerbot9001
 docker run -d \
   --name "$HACKER_CONTAINER" \
   --network "$NETWORK" \
