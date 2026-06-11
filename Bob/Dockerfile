@@ -10,7 +10,7 @@ COPY bob.py .
 RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
 
 # Expose the port Bob listens on
-EXPOSE 9001
+EXPOSE 8888
 
 # Run the python script
 CMD ["python", "bob.py"]

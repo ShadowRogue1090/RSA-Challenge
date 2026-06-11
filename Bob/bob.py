@@ -1,7 +1,7 @@
 import socket
 
 HOST = "0.0.0.0"
-PORT = 9001
+PORT = 8888
 
 PUBLIC_KEY = """-----BEGIN PUBLIC KEY-----
 BOBKEY123

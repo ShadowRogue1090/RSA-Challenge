@@ -32,8 +32,8 @@ RUN mkdir -p /var/log/capture
 
 # start capture + ssh
 CMD bash -c "\
+    echo '[*] Starting packet capture...' && \
     tshark -i any -n \
         -f 'tcp port 2222 or tcp port 2224 or tcp port 9001' \
         -w /var/log/capture/capture.pcap & \
-    sleep 1 && \
-    /usr/sbin/sshd -D -e"
+    exec /usr/sbin/sshd -D -e"

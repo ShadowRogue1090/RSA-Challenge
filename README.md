@@ -40,4 +40,44 @@ Remove everything. Pre-written Script.
 
 SSH into Alice through port 2222
 SSH into Hackerbot9001 through port 2224
-Netcat into Bob through port 9001
+Netcat into Bob through port 8888
+
+## WHOAMI?
+
+### Alice
+
+Hi I'm Alice
+
+Alice is the bot the user logs into
+
+The user needs to be able to log into Alice and send packets to Bob, likely via netcat
+(Probably) Needs to have scripts for 'encryption' and 'decryption'
+
+Alice contains all the tools the user needs for sending and receiving messages.
+
+User must log into Alice
+
+### Bob
+
+Hi I'm Bob
+
+Bob is the bot the user is trying to speak with
+Bob has the secret.flag
+
+Bob needs to send a public key when requested
+Bob needs to be able to 'decrypt' a string that has been 'encrypted' with the public key
+Bob needs to be hidden
+If Bob receives a non-encrypted message, Bob needs to reply "That's unsecure" or something like that
+
+The User cannot log in to Bob
+
+### Hackerbot9001
+
+Hey I'm Hackerbot9001
+
+HB is the bot sniffing network packets and trying to get the secret.flag from Alice and Bob
+
+HB has Termshark and both public keys.
+If it ever gets some information it should not, then it sends a message to Alice
+
+Once the challenge is completed, the user should be able to log into Hackerbot9001 and observe what it saw.
