@@ -4,7 +4,6 @@ source ./config.cfg
 ## Create Networks
 
 docker network create "$NETWORK"
-docker network create "$HIDDEN_NETWORK"
 
 ## Build Images
 
@@ -32,5 +31,7 @@ docker run -d \
   docker run -d \
   --name "$HACKER_CONTAINER" \
   --network "$NETWORK" \
-  -p 2222:22 \
+  --cap-add=NET_ADMIN \
+  --cap-add=NET_RAW \
+  -p 2224:22 \
   hacker
