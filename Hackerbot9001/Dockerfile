@@ -40,6 +40,6 @@ RUN echo "alias termshark='termshark /var/log/capture/capture.pcap'" >> /home/ha
 CMD bash -c "\
     echo '[*] Starting packet capture...' && \
     tshark -i any -n \
-        -f 'tcp port 2222 or tcp port 2224 or tcp port 9001' \
+        -f 'tcp port 22 or tcp port 8888' \
         -w /var/log/capture/capture.pcap & \
     exec /usr/sbin/sshd -D -e"
