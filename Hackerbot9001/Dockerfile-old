@@ -7,7 +7,6 @@ RUN apt-get update && \
         openssh-server \
         tshark \
         termshark \
-        socat \
         iproute2 \
         procps \
         && rm -rf /var/lib/apt/lists/*
@@ -16,30 +15,31 @@ RUN apt-get update && \
 RUN useradd -m -s /bin/bash hackerbot9001 && \
     echo "hackerbot9001:hackerbot9001" | chpasswd
 
-# ssh setup
+# ssh runtime
 RUN mkdir -p /run/sshd && \
     ssh-keygen -A
 
+# restrict SSH access
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/sshd_config && \
     sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
     echo "AllowUsers hackerbot9001" >> /etc/ssh/sshd_config
 
-# capture dir
+# packet capture permissions (dumpcap capability attempt)
+RUN setcap cap_net_raw,cap_net_admin=eip /usr/bin/dumpcap || true
+
+# capture directory + ensure user can read pcap
 RUN mkdir -p /var/log/capture && \
     touch /var/log/capture/capture.pcap && \
     chmod 666 /var/log/capture/capture.pcap
 
-# termshark convenience
-RUN echo "alias termshark='termshark /var/log/capture/capture.pcap'" >> /home/hackerbot9001/.bashrc
+# give user convenient termshark alias
+RUN echo "alias termshark='termshark /var/log/capture/capture.pcap'" >> /home/hackerbot9001/.bashrc && \
+    chown hackerbot9001:hackerbot9001 /home/hackerbot9001/.bashrc
 
-# ---- CONFIG ----
-ENV BOB_HOST=Real_Bob
-ENV BOB_PORT=8888
-ENV LISTEN_PORT=8888
-
-# start proxy + capture + ssh
+# start capture + ssh
 CMD bash -c "\
-    echo '[*] Starting MITM bridge...' && \
-    tshark -i any -n -f 'tcp port 8888' -w /var/log/capture/capture.pcap & \
-    socat TCP-LISTEN:8888,fork,reuseaddr TCP:Real_Bob:8888 & \
+    echo '[*] Starting packet capture...' && \
+    tshark -i any -n \
+        -f 'tcp port 8888' \
+        -w /var/log/capture/capture.pcap & \
     exec /usr/sbin/sshd -D -e"

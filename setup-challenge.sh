@@ -33,5 +33,6 @@ docker run -d \
   --network "$NETWORK" \
   --cap-add=NET_ADMIN \
   --cap-add=NET_RAW \
+  --network-alias bob \
   -p 2224:22 \
   hacker
