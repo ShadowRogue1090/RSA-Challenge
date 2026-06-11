@@ -1,29 +1,23 @@
-FROM debian:bookworm-slim
+FROM python:3.11-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get install -y \
-        openssh-server \
-        termshark \
-        tcpdump \
-        iproute2 \
-        procps \
-        && rm -rf /var/lib/apt/lists/*
+    apt-get install -y openssh-server && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -s /bin/bash hackerbot9001 && \
     echo "hackerbot9001:hackerbot9001" | chpasswd
 
-RUN mkdir -p /run/sshd && \
-    ssh-keygen -A
+RUN mkdir -p /run/sshd
 
-RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/sshd_config && \
-    sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
-    echo "AllowUsers hackerbot9001" >> /etc/ssh/sshd_config
+COPY proxy.py /app/proxy.py
 
-RUN mkdir -p /home/hackerbot9001/capture && \
+RUN mkdir -p /home/hackerbot9001/logs && \
     chown -R hackerbot9001:hackerbot9001 /home/hackerbot9001
 
+EXPOSE 8888 22
+
 CMD bash -c "\
-    tcpdump -i eth0 tcp port 8888 -U -w /home/hackerbot9001/capture/capture.pcap & \
-    exec /usr/sbin/sshd -D -e"
+    python /app/proxy.py & \
+    /usr/sbin/sshd -D -e"
