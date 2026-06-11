@@ -8,8 +8,9 @@ RUN apt-get update && \
         findutils \
         bat \
         nano \
-        && \
-    rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ln -s /usr/bin/batcat /usr/local/bin/bat
 
 RUN useradd -m -s /bin/bash alice && \
     echo "alice:alice" | chpasswd
@@ -19,6 +20,8 @@ RUN mkdir /var/run/sshd
 COPY alice-files/ /home/alice/
 
 RUN chown -R alice:alice /home/alice
+
+RUN find /home/alice -type f -name "*.sh" -exec chmod +x {} \;
 
 RUN passwd -l root
 
