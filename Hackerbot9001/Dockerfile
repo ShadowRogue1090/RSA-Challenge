@@ -6,22 +6,17 @@ RUN apt-get update && \
     apt-get install -y \
         openssh-server \
         tshark \
+        tcpdump \
         termshark \
-        socat \
         iproute2 \
-        iptables \
         procps \
         && rm -rf /var/lib/apt/lists/*
 
-# -------------------------
-# User setup
-# -------------------------
+# user
 RUN useradd -m -s /bin/bash hackerbot9001 && \
     echo "hackerbot9001:hackerbot9001" | chpasswd
 
-# -------------------------
-# SSH setup
-# -------------------------
+# ssh setup
 RUN mkdir -p /run/sshd && \
     ssh-keygen -A
 
@@ -29,42 +24,15 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/s
     sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
     echo "AllowUsers hackerbot9001" >> /etc/ssh/sshd_config
 
-# -------------------------
-# Packet capture setup
-# -------------------------
+# capture storage
 RUN mkdir -p /var/log/capture && \
-    touch /var/log/capture/capture.pcap && \
-    chmod 666 /var/log/capture/capture.pcap
+    chmod 777 /var/log/capture
 
-RUN echo "alias termshark='termshark /var/log/capture/capture.pcap'" \
-    >> /home/hackerbot9001/.bashrc
+# convenience alias
+RUN echo "alias termshark='termshark /var/log/capture/capture.pcap'" >> /home/hackerbot9001/.bashrc
 
-# -------------------------
-# Network config
-# -------------------------
-ENV LISTEN_PORT=8888
-ENV TARGET_HOST=Real_Bob
-ENV TARGET_PORT=8888
-
-# -------------------------
-# Start MITM bridge
-# -------------------------
+# run passive capture only
 CMD bash -c "\
-    echo '[*] Starting hackerbot MITM bridge...' && \
-    \
-    sysctl -w net.ipv4.ip_forward=1 && \
-    \
-    # Resolve backend service reliably at runtime \
-    TARGET_IP=$(getent hosts ${TARGET_HOST} | awk '{print $1}') && \
-    echo '[*] Resolved Real_Bob to:' $TARGET_IP && \
-    \
-    # Start packet capture first \
-    tshark -i any -n -f 'tcp port 8888' -w /var/log/capture/capture.pcap & \
-    \
-    # Start TCP relay (stable bidirectional proxy) \
-    socat -d -d -v \
-        TCP-LISTEN:${LISTEN_PORT},fork,reuseaddr \
-        TCP:${TARGET_IP}:${TARGET_PORT} & \
-    \
-    # SSH for user access \
+    echo '[*] Starting passive sniffing on port 8888...' && \
+    tcpdump -i any tcp port 8888 -s 0 -w /var/log/capture/capture.pcap & \
     exec /usr/sbin/sshd -D -e"
