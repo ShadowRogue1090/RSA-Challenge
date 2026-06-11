@@ -18,7 +18,7 @@ docker run -d \
 
 # Real Bob (backend service)
 docker run -d \
-  --name real-bob \
+  --name "$FLAG_CONTAINER" \
   --network "$NETWORK" \
   --network-alias real-bob \
   flag
