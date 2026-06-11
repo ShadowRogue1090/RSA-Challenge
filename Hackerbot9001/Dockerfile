@@ -7,8 +7,8 @@ RUN apt-get update && \
         openssh-server \
         tshark \
         termshark \
-        socat \
         iproute2 \
+        iptables \
         procps \
         && rm -rf /var/lib/apt/lists/*
 
@@ -16,7 +16,7 @@ RUN apt-get update && \
 RUN useradd -m -s /bin/bash hackerbot9001 && \
     echo "hackerbot9001:hackerbot9001" | chpasswd
 
-# ssh setup
+# ssh
 RUN mkdir -p /run/sshd && \
     ssh-keygen -A
 
@@ -24,22 +24,26 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/s
     sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
     echo "AllowUsers hackerbot9001" >> /etc/ssh/sshd_config
 
-# capture dir
+# capture setup
 RUN mkdir -p /var/log/capture && \
     touch /var/log/capture/capture.pcap && \
     chmod 666 /var/log/capture/capture.pcap
 
-# termshark convenience
 RUN echo "alias termshark='termshark /var/log/capture/capture.pcap'" >> /home/hackerbot9001/.bashrc
 
-# ---- CONFIG ----
-ENV BOB_HOST=Real_Bob
-ENV BOB_PORT=8888
-ENV LISTEN_PORT=8888
+# enable forwarding
+RUN echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 
-# start proxy + capture + ssh
+# start everything
 CMD bash -c "\
-    echo '[*] Starting MITM bridge...' && \
+    echo '[*] Starting MITM NAT + capture...' && \
+    sysctl -w net.ipv4.ip_forward=1 && \
+    \
+    # NAT redirect bob:8888 → Real_Bob:8888 \
+    iptables -t nat -A PREROUTING -p tcp --dport 8888 -j DNAT --to-destination Real_Bob:8888 && \
+    iptables -t nat -A POSTROUTING -j MASQUERADE && \
+    \
+    # capture traffic \
     tshark -i any -n -f 'tcp port 8888' -w /var/log/capture/capture.pcap & \
-    socat TCP-LISTEN:8888,fork,reuseaddr TCP:Real_Bob:8888 & \
+    \
     exec /usr/sbin/sshd -D -e"

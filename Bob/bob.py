@@ -8,13 +8,13 @@ BOBKEY123
 -----END PUBLIC KEY-----
 """
 
-# Pre-determined challenge-response pair
-CHALLENGE_HASH = "chall-hash"  # example: md5("hello")
-RESPONSE_HASH = "098f6bcd4621d373cade4e832627b4f6"  # example: md5("test")
+CHALLENGE_HASH = "chall-hash"
+RESPONSE_HASH = "098f6bcd4621d373cade4e832627b4f6"
 
 
 def handle_client(conn, addr):
     print(f"[+] Connection from {addr}")
+
     conn.sendall(b"Connected to Bob.\n")
 
     try:
@@ -25,12 +25,10 @@ def handle_client(conn, addr):
         message = data.decode().strip()
         print(f"[>] Received: {message}")
 
-        # --- Public Key Request ---
         if message == "Requesting Public Key":
             conn.sendall(b"Sending public key...\n")
             conn.sendall(PUBLIC_KEY.encode() + b"\n")
 
-        # --- MD5 Challenge Response ---
         elif message == CHALLENGE_HASH:
             conn.sendall(b"Challenge accepted.\n")
             conn.sendall(RESPONSE_HASH.encode() + b"\n")
@@ -38,12 +36,16 @@ def handle_client(conn, addr):
         else:
             conn.sendall(b"Invalid request\n")
 
+    except Exception as e:
+        print(f"[!] Error: {e}")
+
     finally:
         conn.close()
 
 
 def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind((HOST, PORT))
         s.listen()
 
