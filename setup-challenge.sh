@@ -31,6 +31,7 @@ docker run -d \
   --network "$NETWORK" \
   --cap-add=NET_ADMIN \
   --cap-add=NET_RAW \
+  --network-alias bob \
   --sysctl net.ipv4.ip_forward=1 \
   -p 2224:22 \
   hacker

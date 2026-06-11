@@ -36,14 +36,11 @@ RUN echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 
 # start everything
 CMD bash -c "\
-    echo '[*] Starting MITM NAT + capture...' && \
+    echo '[*] Starting MITM proxy + capture...' && \
     sysctl -w net.ipv4.ip_forward=1 && \
     \
-    # NAT redirect bob:8888 → Real_Bob:8888 \
-    iptables -t nat -A PREROUTING -p tcp --dport 8888 -j DNAT --to-destination Real_Bob:8888 && \
-    iptables -t nat -A POSTROUTING -j MASQUERADE && \
-    \
-    # capture traffic \
     tshark -i any -n -f 'tcp port 8888' -w /var/log/capture/capture.pcap & \
+    \
+    socat -v TCP-LISTEN:8888,fork,reuseaddr TCP:Real_Bob:8888 & \
     \
     exec /usr/sbin/sshd -D -e"
