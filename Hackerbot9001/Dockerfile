@@ -24,11 +24,16 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/s
     sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
     echo "AllowUsers hackerbot9001" >> /etc/ssh/sshd_config
 
-# give capture permissions (important for tshark/dumpcap)
+# packet capture permissions
 RUN setcap cap_net_raw,cap_net_admin=eip /usr/bin/dumpcap || true
 
-# background packet capture (runs forever)
+# capture directory
 RUN mkdir -p /var/log/capture
+
+# start capture + ssh
 CMD bash -c "\
-    tshark -i eth0 -w /var/log/capture/capture.pcap & \
+    tshark -i any -n \
+        -f 'tcp port 2222 or tcp port 2224 or tcp port 9001' \
+        -w /var/log/capture/capture.pcap & \
+    sleep 1 && \
     /usr/sbin/sshd -D -e"

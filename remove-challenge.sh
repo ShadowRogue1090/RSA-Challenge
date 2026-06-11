@@ -10,9 +10,9 @@ docker kill "$HACKER_CONTAINER"
 
 ## Destroy Networks
 
-docker disconnect "$NETWORK" "$USER_CONTAINER"
-docker disconnect "$NETWORK" "$FLAG_CONTAINER"
-docker disconnect "$NETWORK" "$HACKER_CONTAINER"
+docker network disconnect "$NETWORK" "$USER_CONTAINER"
+docker network disconnect "$NETWORK" "$FLAG_CONTAINER"
+docker network disconnect "$NETWORK" "$HACKER_CONTAINER"
 docker network rm "$NETWORK"
 
 ## Destroy Containers
