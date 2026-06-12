@@ -8,7 +8,7 @@ BOBKEY123
 -----END PUBLIC KEY-----
 """
 
-CHALLENGE_HASH = "chall-hash"
+CHALLENGE_HASH = "d12b56f7c505030a7d353294258b2014"
 RESPONSE_HASH = "098f6bcd4621d373cade4e832627b4f6"
 
 
@@ -30,7 +30,7 @@ def handle_client(conn, addr):
             conn.sendall(PUBLIC_KEY.encode() + b"\n")
 
         elif message == CHALLENGE_HASH:
-            conn.sendall(b"Challenge accepted.\n")
+            conn.sendall(b"Responce accepted.\n")
             conn.sendall(RESPONSE_HASH.encode() + b"\n")
 
         else:
