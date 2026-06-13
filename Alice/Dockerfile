@@ -19,9 +19,9 @@ RUN mkdir /var/run/sshd
 
 COPY alice-files/ /home/alice/
 
-RUN chown -R alice:alice /home/alice
+RUN chown -R root:root /home/alice
 
-RUN find /home/alice -type f -name "*.sh" -exec chmod +x {} \;
+RUN find /home/alice -type f -name "*.sh" -exec chmod 551 {} \;
 
 RUN passwd -l root
 
